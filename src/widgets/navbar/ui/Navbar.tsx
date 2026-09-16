@@ -9,7 +9,6 @@ import {
   ArrowRightOnRectangleIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
-
 export const Navbar: FC = () => {
   // Пример пунктов меню
   const menuItems = [
