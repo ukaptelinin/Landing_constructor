@@ -2,17 +2,20 @@
 
 import { FC, useState } from "react";
 import Link from "next/link";
-import { Avatar, Button, Dropdown } from "@heroui/react";
+import { Avatar, Dropdown } from "@heroui/react";
 import { ThemeSwitch } from "@/features/theme-switch"; // Ваш существующий ThemeSwitch
-import {
-  UserIcon,
-  ArrowRightOnRectangleIcon,
-  WrenchScrewdriverIcon,
-} from "@heroicons/react/24/outline";
-import { LoginDialog } from "@/widgets/login-dialog/ui/LoginDialog";
+import { UserIcon, WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
+import { FormDialog } from "@/shared/ui/form-dialog/ui/FormDialog";
+import { LoginMenu } from "./LoginMenu";
+import { LogOut } from "./LogOut";
+import { MenuOptions } from "./MenuOptions";
+import { LoginForm } from "@/features/auth/login/ui/LoginForm";
+import { RegisterForm } from "@/features/auth/register/ui/RegisterForm";
 
 export const Navbar: FC = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   // Пример пунктов меню
   const menuItems = [
     { label: "Главная", href: "/" },
@@ -34,18 +37,7 @@ export const Navbar: FC = () => {
           </div>
 
           {/* По центру: Меню из 4 элементов, сдвинутое немного влево */}
-          <ul className="hidden items-center gap-6 md:flex md:mr-auto md:ml-8">
-            {menuItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="text-sm text-default-600 transition-colors hover:text-foreground"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {isLogin ? <MenuOptions menuItems={menuItems} /> : null}
 
           {/* Справа: ThemeSwitch и кнопка с аватаром */}
           <div className="flex items-center gap-3">
@@ -54,40 +46,43 @@ export const Navbar: FC = () => {
             {/* Кнопка с аватаром и выпадающим меню для входа/выхода */}
             <Dropdown>
               <Dropdown.Trigger>
-                <Button
-                  isIconOnly
-                  variant="tertiary"
+                <div
+                  className="flex items-center justify-center rounded-full p-1 hover:bg-default-100 transition-colors cursor-pointer"
                   aria-label="Профиль пользователя"
-                  className="rounded-full"
                 >
                   <Avatar className="h-8 w-8">
                     <Avatar.Fallback>
                       <UserIcon className="h-5 w-5" />
                     </Avatar.Fallback>
                   </Avatar>
-                </Button>
+                </div>
               </Dropdown.Trigger>
-              <Dropdown.Popover>
-                <Dropdown.Menu>
-                  <Dropdown.Item
-                    id="login"
-                    textValue="Войти"
-                    onAction={() => setIsLoginOpen(true)}
-                  >
-                    <UserIcon className="h-4 w-4" />
-                    Войти
-                  </Dropdown.Item>
-                  <Dropdown.Item id="logout" textValue="Выйти" variant="danger">
-                    <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                    Выйти
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
+              {isLogin ? (
+                <LogOut setIsLogin={setIsLogin} />
+              ) : (
+                <LoginMenu
+                  setIsLoginOpen={setIsLoginOpen}
+                  setIsRegisterOpen={setIsRegisterOpen}
+                />
+              )}
             </Dropdown>
           </div>
         </div>
       </nav>
-      <LoginDialog isOpen={isLoginOpen} onOpenChange={setIsLoginOpen} />
+      <FormDialog
+        titleDialog="Вход в аккаунт"
+        isOpen={isLoginOpen}
+        onOpenChange={setIsLoginOpen}
+      >
+        <LoginForm />
+      </FormDialog>
+      <FormDialog
+        titleDialog="Регистрация"
+        isOpen={isRegisterOpen}
+        onOpenChange={setIsRegisterOpen}
+      >
+        <RegisterForm />
+      </FormDialog>
     </>
   );
 };

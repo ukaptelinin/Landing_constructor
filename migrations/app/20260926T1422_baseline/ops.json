@@ -33,9 +33,7 @@
       {
         "description": "ensure table \"users\" does not exist",
         "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
-        "params": [
-          "\"public\".\"users\""
-        ]
+        "params": ["\"public\".\"users\""]
       }
     ],
     "execute": [
@@ -49,9 +47,7 @@
       {
         "description": "verify table \"users\" exists",
         "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
-        "params": [
-          "\"public\".\"users\""
-        ]
+        "params": ["\"public\".\"users\""]
       }
     ]
   },
@@ -72,11 +68,7 @@
       {
         "description": "ensure constraint \"users_email_key\" does not exist",
         "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
-        "params": [
-          "users_email_key",
-          "public",
-          "\"public\".\"users\""
-        ]
+        "params": ["users_email_key", "public", "\"public\".\"users\""]
       }
     ],
     "execute": [
@@ -89,11 +81,7 @@
       {
         "description": "verify constraint \"users_email_key\" exists",
         "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
-        "params": [
-          "users_email_key",
-          "public",
-          "\"public\".\"users\""
-        ]
+        "params": ["users_email_key", "public", "\"public\".\"users\""]
       }
     ]
   }

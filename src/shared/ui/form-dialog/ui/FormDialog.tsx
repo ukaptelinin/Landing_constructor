@@ -2,26 +2,30 @@
 "use client";
 
 import { FC, ReactNode } from "react";
-import { Button, Modal } from "@heroui/react";
-import { LoginForm } from "./LoginForm";
+import { Modal } from "@heroui/react";
 
 interface LoginDialogProps {
   isOpen?: boolean;
+  titleDialog: string;
   onOpenChange?: (isOpen: boolean) => void;
+  children: ReactNode;
 }
 
-export const LoginDialog: FC<LoginDialogProps> = ({ isOpen, onOpenChange }) => {
+export const FormDialog: FC<LoginDialogProps> = ({
+  titleDialog,
+  isOpen,
+  onOpenChange,
+  children,
+}) => {
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <Modal.Backdrop variant="blur">
         <Modal.Container placement="center">
           <Modal.Dialog className="max-w-md w-full mt-[15vh]">
             <Modal.Header>
-              <h2 className="text-xl font-semibold">Вход в аккаунт</h2>
+              <h2 className="text-xl font-semibold">{titleDialog}</h2>
             </Modal.Header>
-            <Modal.Body>
-              <LoginForm />
-            </Modal.Body>
+            <Modal.Body>{children}</Modal.Body>
           </Modal.Dialog>
         </Modal.Container>
       </Modal.Backdrop>
