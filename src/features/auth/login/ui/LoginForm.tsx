@@ -1,6 +1,7 @@
 // src/widgets/login-dialog/ui/LoginForm.tsx
 "use client";
 
+import { useAppActions } from "@/app/model/store/app-store";
 import {
   Form,
   TextField,
@@ -15,11 +16,12 @@ import { useActionState } from "react";
 //import { loginAction } from '@/app/actions/auth';
 
 export const LoginForm = () => {
-  // const [state, formAction, isPending] = useActionState(loginAction, null);
+  const { setIsLogin } = useAppActions();
 
   return (
     <Form
-      /*action={formAction} */ className="flex flex-col gap-4"
+      onClick={() => setIsLogin()}
+      className="flex flex-col gap-4"
       validationBehavior="aria"
     >
       <TextField name="login" isRequired>

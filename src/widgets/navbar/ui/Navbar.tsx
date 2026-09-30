@@ -11,11 +11,18 @@ import { LogOut } from "./LogOut";
 import { MenuOptions } from "./MenuOptions";
 import { LoginForm } from "@/features/auth/login/ui/LoginForm";
 import { RegisterForm } from "@/features/auth/register/ui/RegisterForm";
+import {
+  useAppActions,
+  useIsLogin,
+  useIsLoginOpen,
+  useIsRegisterOpen,
+} from "@/app/model/store/app-store";
 
 export const Navbar: FC = () => {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const { setIsLoginOpen, setIsRegisterOpen } = useAppActions();
+  const isLoginOpen = useIsLoginOpen();
+  const isRegisterOpen = useIsRegisterOpen();
+  const isLogin = useIsLogin();
   // Пример пунктов меню
   const menuItems = [
     { label: "Главная", href: "/" },
@@ -57,14 +64,7 @@ export const Navbar: FC = () => {
                   </Avatar>
                 </div>
               </Dropdown.Trigger>
-              {isLogin ? (
-                <LogOut setIsLogin={setIsLogin} />
-              ) : (
-                <LoginMenu
-                  setIsLoginOpen={setIsLoginOpen}
-                  setIsRegisterOpen={setIsRegisterOpen}
-                />
-              )}
+              {isLogin ? <LogOut /> : <LoginMenu />}
             </Dropdown>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppActions } from "@/app/model/store/app-store";
 import {
   Form,
   TextField,
@@ -8,17 +9,17 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
-import { useActionState } from "react";
 
 // Пример серверного экшена (нужно создать отдельно)
 //import { loginAction } from '@/app/actions/auth';
 
 export const RegisterForm = () => {
   // const [state, formAction, isPending] = useActionState(loginAction, null);
-
+  const { setIsLogin } = useAppActions();
   return (
     <Form
-      /*action={formAction} */ className="flex flex-col gap-4"
+      onClick={() => setIsLogin()}
+      className="flex flex-col gap-4"
       validationBehavior="aria"
     >
       <TextField name="login" isRequired>
