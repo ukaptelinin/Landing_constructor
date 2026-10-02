@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppActions } from "@/app/model/store/app-store";
+import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
 import {
   Form,
   TextField,
@@ -9,16 +9,36 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
+import { useState } from "react";
 
 // Пример серверного экшена (нужно создать отдельно)
 //import { loginAction } from '@/app/actions/auth';
 
 export const RegisterForm = () => {
   // const [state, formAction, isPending] = useActionState(loginAction, null);
-  const { setIsLogin } = useAppActions();
+
+  const { setIsLogin, setIsRegisterOpen } = useAppActions();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const isLogin = useIsLogin();
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log("submit fired");
+
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const login = String(formData.get("login") ?? "");
+    const password = String(formData.get("password") ?? "");
+
+    setIsLogin();
+    setIsRegisterOpen();
+  };
   return (
     <Form
-      onClick={() => setIsLogin()}
+      onSubmit={onSubmit}
       className="flex flex-col gap-4"
       validationBehavior="aria"
     >
