@@ -19,10 +19,10 @@ import {
 } from "@/app/model/store/app-store";
 
 export const Navbar: FC = () => {
-  const { setIsLoginOpen, setIsRegisterOpen } = useAppActions();
   const isLoginOpen = useIsLoginOpen();
   const isRegisterOpen = useIsRegisterOpen();
   const isLogin = useIsLogin();
+  const { openLogin, openRegister, closeAll } = useAppActions();
   // Пример пунктов меню
   const menuItems = [
     { label: "Главная", href: "/" },
@@ -64,22 +64,26 @@ export const Navbar: FC = () => {
                   </Avatar>
                 </div>
               </Dropdown.Trigger>
-              {isLogin ? <LogOut /> : <LoginMenu />}
+              {isLogin ? (
+                <LogOut />
+              ) : (
+                <LoginMenu onLogin={openLogin} onRegister={openRegister} />
+              )}
             </Dropdown>
           </div>
         </div>
       </nav>
       <FormDialog
-        titleDialog="Вход в аккаунт"
+        title="Вход в аккаунт"
         isOpen={isLoginOpen}
-        onOpenChange={setIsLoginOpen}
+        onOpenChange={(open) => (open ? openLogin() : closeAll())}
       >
         <LoginForm />
       </FormDialog>
       <FormDialog
-        titleDialog="Регистрация"
+        title="Регистрация"
         isOpen={isRegisterOpen}
-        onOpenChange={setIsRegisterOpen}
+        onOpenChange={(open) => (open ? openRegister() : closeAll())}
       >
         <RegisterForm />
       </FormDialog>

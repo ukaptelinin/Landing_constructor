@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
+import { useAppActions } from "@/app/model/store/app-store";
 import {
   Form,
   TextField,
@@ -9,32 +9,37 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
-import { useState } from "react";
-
-// Пример серверного экшена (нужно создать отдельно)
-//import { loginAction } from '@/app/actions/auth';
+import { useState, useTransition } from "react";
+import { registerAction } from "../api/register-action";
+import { PasswordField } from "@/shared/ui/password-field/ui/PasswordField";
 
 export const RegisterForm = () => {
-  // const [state, formAction, isPending] = useActionState(loginAction, null);
-
-  const { setIsLogin, setIsRegisterOpen } = useAppActions();
+  const { setIsLogin, closeAll } = useAppActions();
   const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const isLogin = useIsLogin();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isPending, startTransition] = useTransition();
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    console.log("submit fired");
-
     setError(null);
+    setFieldErrors({});
 
     const formData = new FormData(e.currentTarget);
     const login = String(formData.get("login") ?? "");
     const password = String(formData.get("password") ?? "");
+    const newPassword = String(formData.get("newPassword") ?? "");
 
-    setIsLogin();
-    setIsRegisterOpen();
+    startTransition(async () => {
+      const result = await registerAction({ login, password, newPassword });
+
+      if (!result.success) {
+        setError(result.error);
+        if (result.fieldErrors) setFieldErrors(result.fieldErrors);
+        return;
+      }
+      setIsLogin(true);
+      closeAll();
+    });
   };
   return (
     <Form
@@ -42,31 +47,45 @@ export const RegisterForm = () => {
       className="flex flex-col gap-4"
       validationBehavior="aria"
     >
-      <TextField name="login" isRequired>
+      <TextField name="login" isRequired isInvalid={!!fieldErrors.login}>
         <Label>Логин или Email</Label>
-        <Input placeholder="Введите логин" autoFocus />
-        <FieldError />
+        <Input placeholder="Введите email" autoFocus />
+        <FieldError>{fieldErrors.login}</FieldError>
       </TextField>
 
-      <TextField name="password" type="password" isRequired>
+      <TextField
+        name="password"
+        type="password"
+        isRequired
+        isInvalid={!!fieldErrors.password}
+      >
         <Label>Пароль</Label>
-        <Input placeholder="Введите пароль" />
-        <FieldError />
+
+        <PasswordField name="password" placeholder="Введите пароль" />
+        <FieldError>{fieldErrors.password}</FieldError>
       </TextField>
 
-      <TextField name="newPassword" type="password" isRequired>
-        <Label>Пароль</Label>
-        <Input placeholder="Снова введите пароль " />
-        <FieldError />
+      <TextField
+        name="newPassword"
+        type="password"
+        isRequired
+        isInvalid={!!fieldErrors.newPassword}
+      >
+        <Label>Повторите пароль</Label>
+        <PasswordField name="newPassword" placeholder="Введите пароль" />
+
+        <FieldError>{fieldErrors.newPassword}</FieldError>
       </TextField>
 
-      {/* Отображение ошибки от сервера 
-      {state?.error && (
-        <div className="text-danger text-sm text-center">{state.error}</div>
-      )}
-*/}
-      <Button type="submit" variant="primary" className="w-full mt-2">
-        Регистрация
+      {error && <div className="text-danger text-sm text-center">{error}</div>}
+
+      <Button
+        type="submit"
+        variant="primary"
+        className="w-full mt-2"
+        isDisabled={isPending}
+      >
+        {isPending ? "Регистрация..." : "Зарегистрироваться"}
       </Button>
     </Form>
   );

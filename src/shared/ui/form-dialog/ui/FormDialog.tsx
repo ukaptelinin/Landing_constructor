@@ -6,13 +6,13 @@ import { Modal } from "@heroui/react";
 
 interface LoginDialogProps {
   isOpen?: boolean;
-  titleDialog: string;
+  title: string;
   onOpenChange?: (isOpen: boolean) => void;
   children: ReactNode;
 }
 
 export const FormDialog: FC<LoginDialogProps> = ({
-  titleDialog,
+  title,
   isOpen,
   onOpenChange,
   children,
@@ -23,7 +23,7 @@ export const FormDialog: FC<LoginDialogProps> = ({
         <Modal.Container placement="center">
           <Modal.Dialog className="max-w-md w-full mt-[15vh]">
             <Modal.Header>
-              <h2 className="text-xl font-semibold">{titleDialog}</h2>
+              <h2 className="text-xl font-semibold">{title}</h2>
             </Modal.Header>
             <Modal.Body>{children}</Modal.Body>
           </Modal.Dialog>

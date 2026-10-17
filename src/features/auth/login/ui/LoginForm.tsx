@@ -1,7 +1,7 @@
 // src/widgets/login-dialog/ui/LoginForm.tsx
 "use client";
 
-import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
+import { useAppActions } from "@/app/model/store/app-store";
 import {
   Form,
   TextField,
@@ -10,33 +10,39 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
-
-// Пример серверного экшена (нужно создать отдельно)
-//import { loginAction } from '@/app/actions/auth';
+import { useState, useTransition } from "react";
+import { loginAction } from "../api/login-action";
+import { PasswordField } from "@/shared/ui/password-field/ui/PasswordField";
 
 export const LoginForm = () => {
-  const { setIsLogin, setIsLoginOpen } = useAppActions();
+  const { setIsLogin, closeAll } = useAppActions();
   const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const isLogin = useIsLogin();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isPending, startTransition] = useTransition();
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    console.log("submit fired");
-
     setError(null);
+    setFieldErrors({});
 
     const formData = new FormData(e.currentTarget);
     const login = String(formData.get("login") ?? "");
     const password = String(formData.get("password") ?? "");
+    const newPassword = String(formData.get("newPassword") ?? "");
 
-    setIsLogin();
-    setIsLoginOpen();
+    startTransition(async () => {
+      const result = await loginAction({ login, password });
+
+      if (!result.success) {
+        setError(result.error);
+        if (result.fieldErrors) setFieldErrors(result.fieldErrors);
+        return;
+      }
+
+      setIsLogin(true);
+      closeAll();
+    });
   };
-
-  useEffect(() => console.log(isLogin), [isLogin]);
 
   return (
     <Form
@@ -46,23 +52,25 @@ export const LoginForm = () => {
     >
       <TextField name="login" isRequired>
         <Label>Логин или Email</Label>
-        <Input placeholder="Введите логин" autoFocus />
+        <Input placeholder="Введите email" autoFocus />
         <FieldError />
       </TextField>
 
       <TextField name="password" type="password" isRequired>
         <Label>Пароль</Label>
-        <Input placeholder="Введите пароль" />
+        <PasswordField name="password" placeholder="Введите пароль" />
         <FieldError />
       </TextField>
 
-      {/* Отображение ошибки от сервера 
-      {state?.error && (
-        <div className="text-danger text-sm text-center">{state.error}</div>
-      )}
-*/}
-      <Button type="submit" variant="primary" className="w-full mt-2">
-        Войти
+      {error && <div className="text-danger text-sm text-center">{error}</div>}
+
+      <Button
+        type="submit"
+        variant="primary"
+        className="w-full mt-2"
+        isDisabled={isPending}
+      >
+        {isPending ? "Вход..." : "Войти"}
       </Button>
     </Form>
   );

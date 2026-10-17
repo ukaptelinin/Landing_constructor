@@ -13,7 +13,7 @@ export const LogOut: FC = () => {
           id="logout"
           textValue="Выйти"
           variant="danger"
-          onAction={() => setIsLogin()}
+          onAction={() => setIsLogin(false)}
         >
           <ArrowRightOnRectangleIcon className="h-4 w-4" />
           Выйти

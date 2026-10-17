@@ -1,21 +1,20 @@
 "use client";
 
-import { useAppActions } from "@/app/model/store/app-store";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
 import UserIcon from "@heroicons/react/24/outline/UserIcon";
 import { Dropdown } from "@heroui/react";
 import { FC } from "react";
 
-export const LoginMenu: FC = () => {
-  const { setIsLoginOpen, setIsRegisterOpen } = useAppActions();
+interface LoginMenuProps {
+  onLogin: () => void;
+  onRegister: () => void;
+}
+
+export const LoginMenu: FC<LoginMenuProps> = ({ onLogin, onRegister }) => {
   return (
     <Dropdown.Popover>
       <Dropdown.Menu>
-        <Dropdown.Item
-          id="login"
-          textValue="Войти"
-          onAction={() => setIsLoginOpen()}
-        >
+        <Dropdown.Item id="login" textValue="Войти" onAction={onLogin}>
           <UserIcon className="h-4 w-4" />
           Войти
         </Dropdown.Item>
@@ -23,7 +22,7 @@ export const LoginMenu: FC = () => {
           id="register"
           textValue="Зарегистрироваться"
           variant="danger"
-          onAction={() => setIsRegisterOpen()}
+          onAction={onRegister}
         >
           <UserPlusIcon className="h-4 w-4" />
           Зарегистрироваться

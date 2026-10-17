@@ -1,9 +1,25 @@
-import "dotenv/config";
-import postgres from "@prisma/orm-postgres/runtime";
-import type { Contract } from "./contract.d";
-import contractJson from "./contract.json" with { type: "json" };
+import "server-only";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@/generated/prisma/client";
 
-export const db = postgres<Contract>({
-  contractJson,
-  url: process.env["DATABASE_URL"]!,
-});
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not defined");
+  }
+
+  const adapter = new PrismaPg({ connectionString });
+
+  return new PrismaClient({ adapter });
+};
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: ReturnType<typeof createPrismaClient> | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
