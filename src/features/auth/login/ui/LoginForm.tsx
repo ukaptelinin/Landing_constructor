@@ -13,8 +13,10 @@ import {
 import { useState, useTransition } from "react";
 import { loginAction } from "../api/login-action";
 import { PasswordField } from "@/shared/ui/password-field/ui/PasswordField";
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
+  const router = useRouter();
   const { setIsLogin, closeAll } = useAppActions();
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -41,6 +43,7 @@ export const LoginForm = () => {
 
       setIsLogin(true);
       closeAll();
+      router.push("/main");
     });
   };
 

@@ -12,12 +12,14 @@ import {
 import { useState, useTransition } from "react";
 import { registerAction } from "../api/register-action";
 import { PasswordField } from "@/shared/ui/password-field/ui/PasswordField";
+import { useRouter } from "next/navigation";
 
 export const RegisterForm = () => {
   const { setIsLogin, closeAll } = useAppActions();
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,6 +41,7 @@ export const RegisterForm = () => {
       }
       setIsLogin(true);
       closeAll();
+      router.push("/main");
     });
   };
   return (

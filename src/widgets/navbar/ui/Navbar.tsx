@@ -1,33 +1,23 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC } from "react";
 import Link from "next/link";
 import { Avatar, Dropdown } from "@heroui/react";
 import { ThemeSwitch } from "@/features/theme-switch"; // Ваш существующий ThemeSwitch
 import { UserIcon, WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
-import { FormDialog } from "@/shared/ui/form-dialog/ui/FormDialog";
 import { LoginMenu } from "./LoginMenu";
 import { LogOut } from "./LogOut";
 import { MenuOptions } from "./MenuOptions";
-import { LoginForm } from "@/features/auth/login/ui/LoginForm";
-import { RegisterForm } from "@/features/auth/register/ui/RegisterForm";
-import {
-  useAppActions,
-  useIsLogin,
-  useIsLoginOpen,
-  useIsRegisterOpen,
-} from "@/app/model/store/app-store";
+import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
 
 export const Navbar: FC = () => {
-  const isLoginOpen = useIsLoginOpen();
-  const isRegisterOpen = useIsRegisterOpen();
   const isLogin = useIsLogin();
   const { openLogin, openRegister, closeAll } = useAppActions();
   // Пример пунктов меню
   const menuItems = [
-    { label: "Главная", href: "/" },
-    { label: "Новый проект", href: "/newproject" },
-    { label: "Мои проекты", href: "/myprogects" },
+    { label: "Главная", href: "/main" },
+    { label: "Новый проект", href: "/new_project" },
+    { label: "Мои проекты", href: "/my_projects" },
   ];
 
   return (
@@ -73,20 +63,6 @@ export const Navbar: FC = () => {
           </div>
         </div>
       </nav>
-      <FormDialog
-        title="Вход в аккаунт"
-        isOpen={isLoginOpen}
-        onOpenChange={(open) => (open ? openLogin() : closeAll())}
-      >
-        <LoginForm />
-      </FormDialog>
-      <FormDialog
-        title="Регистрация"
-        isOpen={isRegisterOpen}
-        onOpenChange={(open) => (open ? openRegister() : closeAll())}
-      >
-        <RegisterForm />
-      </FormDialog>
     </>
   );
 };
