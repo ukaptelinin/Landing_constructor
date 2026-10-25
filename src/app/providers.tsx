@@ -1,6 +1,5 @@
 "use client";
-
-// ❌ УДАЛИТЬ: import { HeroUIProvider } from '@heroui/react';
+import { SessionProvider } from "next-auth/react";
 
 import {
   useIsLoginOpen,
@@ -18,23 +17,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {children}
+      <SessionProvider>
+        {children}
 
-      <FormDialog
-        title="Вход в аккаунт"
-        isOpen={isLoginOpen}
-        onOpenChange={(open) => (open ? openLogin() : closeAll())}
-      >
-        <LoginForm />
-      </FormDialog>
+        <FormDialog
+          title="Вход в аккаунт"
+          isOpen={isLoginOpen}
+          onOpenChange={(open) => (open ? openLogin() : closeAll())}
+        >
+          <LoginForm />
+        </FormDialog>
 
-      <FormDialog
-        title="Регистрация"
-        isOpen={isRegisterOpen}
-        onOpenChange={(open) => (open ? openRegister() : closeAll())}
-      >
-        <RegisterForm />
-      </FormDialog>
+        <FormDialog
+          title="Регистрация"
+          isOpen={isRegisterOpen}
+          onOpenChange={(open) => (open ? openRegister() : closeAll())}
+        >
+          <RegisterForm />
+        </FormDialog>
+      </SessionProvider>
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useAppActions } from "@/app/model/store/app-store";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Form,
   TextField,
@@ -9,83 +10,97 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
-import { useState, useTransition } from "react";
-import { registerAction } from "../api/register-action";
+
+import { useAppActions } from "@/app/model/store/app-store";
 import { PasswordField } from "@/shared/ui/password-field/ui/PasswordField";
-import { useRouter } from "next/navigation";
+import { registerAction } from "../api/register-action";
 
 export const RegisterForm = () => {
-  const { setIsLogin, closeAll } = useAppActions();
+  const { closeAll } = useAppActions();
+  const router = useRouter();
+
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     setError(null);
     setFieldErrors({});
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(event.currentTarget);
+
     const login = String(formData.get("login") ?? "");
     const password = String(formData.get("password") ?? "");
     const newPassword = String(formData.get("newPassword") ?? "");
 
     startTransition(async () => {
-      const result = await registerAction({ login, password, newPassword });
+      try {
+        const result = await registerAction({
+          login,
+          password,
+          newPassword,
+        });
 
-      if (!result.success) {
-        setError(result.error);
-        if (result.fieldErrors) setFieldErrors(result.fieldErrors);
-        return;
+        if (!result.success) {
+          setError(result.error);
+          setFieldErrors(result.fieldErrors ?? {});
+          return;
+        }
+
+        closeAll();
+        router.push("/main");
+        router.refresh();
+      } catch (submissionError) {
+        console.error("Register submission error:", submissionError);
+        setError("Произошла непредвиденная ошибка");
       }
-      setIsLogin(true);
-      closeAll();
-      router.push("/main");
     });
   };
+
   return (
     <Form
       onSubmit={onSubmit}
       className="flex flex-col gap-4"
       validationBehavior="aria"
     >
-      <TextField name="login" isRequired isInvalid={!!fieldErrors.login}>
-        <Label>Логин или Email</Label>
-        <Input placeholder="Введите email" autoFocus />
+      <TextField name="login" isRequired isInvalid={Boolean(fieldErrors.login)}>
+        <Label>Email</Label>
+
+        <Input
+          name="login"
+          type="email"
+          autoComplete="email"
+          placeholder="Введите email"
+          autoFocus
+        />
+
         <FieldError>{fieldErrors.login}</FieldError>
       </TextField>
 
-      <TextField
-        name="password"
-        type="password"
-        isRequired
-        isInvalid={!!fieldErrors.password}
-      >
+      <TextField isRequired isInvalid={Boolean(fieldErrors.password)}>
         <Label>Пароль</Label>
 
         <PasswordField name="password" placeholder="Введите пароль" />
+
         <FieldError>{fieldErrors.password}</FieldError>
       </TextField>
 
-      <TextField
-        name="newPassword"
-        type="password"
-        isRequired
-        isInvalid={!!fieldErrors.newPassword}
-      >
+      <TextField isRequired isInvalid={Boolean(fieldErrors.newPassword)}>
         <Label>Повторите пароль</Label>
-        <PasswordField name="newPassword" placeholder="Введите пароль" />
+
+        <PasswordField name="newPassword" placeholder="Повторите пароль" />
 
         <FieldError>{fieldErrors.newPassword}</FieldError>
       </TextField>
 
-      {error && <div className="text-danger text-sm text-center">{error}</div>}
+      {error && <div className="text-danger text-center text-sm">{error}</div>}
 
       <Button
         type="submit"
         variant="primary"
-        className="w-full mt-2"
+        className="mt-2 w-full"
         isDisabled={isPending}
       >
         {isPending ? "Регистрация..." : "Зарегистрироваться"}

@@ -1,42 +1,77 @@
 "use server";
 
-import {
-  AuthResult,
-  loginSchema,
-  userRepository,
-  verifyPassword,
-} from "@/entities/user/model";
+import { AuthError } from "next-auth";
 
-export async function loginAction(input: {
+import { signIn } from "@/auth";
+import { loginSchema } from "@/entities/user/model/schemas";
+
+type LoginResult =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: string;
+      fieldErrors?: Record<string, string>;
+    };
+
+type LoginInput = {
   login: string;
   password: string;
-}): Promise<AuthResult> {
+};
+
+export async function loginAction(input: LoginInput): Promise<LoginResult> {
   const parsed = loginSchema.safeParse(input);
 
   if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+
+    for (const issue of parsed.error.issues) {
+      const field = issue.path[0];
+
+      if (typeof field === "string" && fieldErrors[field] === undefined) {
+        fieldErrors[field] = issue.message;
+      }
+    }
+
     return {
       success: false,
-      error: parsed.error.issues[0]?.message ?? "Ошибка валидации",
+      error: "Проверьте введённые данные",
+      fieldErrors,
     };
   }
 
-  const email = parsed.data.login.toLowerCase();
+  const login = parsed.data.login.trim().toLowerCase();
+  const password = parsed.data.password;
 
   try {
-    const user = await userRepository.findByEmail(email);
+    await signIn("credentials", {
+      login,
+      password,
+      redirect: false,
+    });
 
-    if (!user) {
-      return { success: false, error: "Неверный email или пароль" };
-    }
-
-    const isValid = await verifyPassword(parsed.data.password, user.password);
-    if (!isValid) {
-      return { success: false, error: "Неверный email или пароль" };
-    }
-
-    return { success: true, user: { id: user.id, email: user.email } };
+    return {
+      success: true,
+    };
   } catch (error) {
-    console.error("Login error:", error);
-    return { success: false, error: "Не удалось войти" };
+    if (error instanceof AuthError) {
+      console.error("Authentication error:", {
+        type: error.type,
+        cause: error.cause,
+      });
+
+      return {
+        success: false,
+        error: "Неверный email или пароль",
+      };
+    }
+
+    console.error("Unexpected login error:", error);
+
+    return {
+      success: false,
+      error: "Не удалось войти. Попробуйте ещё раз.",
+    };
   }
 }

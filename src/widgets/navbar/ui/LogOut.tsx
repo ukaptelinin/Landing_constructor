@@ -1,20 +1,19 @@
 "use client";
 import { useAppActions } from "@/app/model/store/app-store";
+import { signOut } from "next-auth/react";
 import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import { Dropdown } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 
-// ← возврат на лендинг
-
 export const LogOut: FC = () => {
   const router = useRouter();
-  const { setIsLogin, closeAll } = useAppActions();
-  const handleLogout = () => {
-    setIsLogin(false);
+  const { closeAll } = useAppActions();
+  const handleLogout = async () => {
     closeAll();
-
+    await signOut({ redirect: false });
     router.push("/");
+    router.refresh();
   };
 
   return (

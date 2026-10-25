@@ -16,14 +16,11 @@ export const PasswordField: FC<PasswordFieldProps> = ({
 
   return (
     <InputGroup>
-      {/* Основное поле ввода, тип меняется динамически */}
       <InputGroup.Input
         name={name}
         type={isVisible ? "text" : "password"}
         placeholder={placeholder}
       />
-
-      {/* Слот Suffix для кнопки-глазка */}
       <InputGroup.Suffix>
         <Button
           isIconOnly

@@ -9,11 +9,15 @@ import { LoginMenu } from "./LoginMenu";
 import { LogOut } from "./LogOut";
 import { MenuOptions } from "./MenuOptions";
 import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
+import { useSession } from "next-auth/react";
 
 export const Navbar: FC = () => {
-  const isLogin = useIsLogin();
-  const { openLogin, openRegister, closeAll } = useAppActions();
-  // Пример пунктов меню
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
+  const isLogin = status === "authenticated";
+  const userEmail = session?.user?.email;
+  const { openLogin, openRegister } = useAppActions();
+
   const menuItems = [
     { label: "Главная", href: "/main" },
     { label: "Новый проект", href: "/new_project" },
@@ -23,24 +27,16 @@ export const Navbar: FC = () => {
   return (
     <>
       <nav className="sticky top-0 z-50 w-full border-b">
-        {/* Скругленная рамка вокруг всего содержимого навбара */}
         <div className="container mx-auto flex h-16 w-full items-center justify-between rounded-2xl border border-gray-200/60 bg-background/60 px-4 shadow-sm">
-          {/* Слева: Логотип с иконкой */}
           <div className="flex items-center gap-2">
             <WrenchScrewdriverIcon className="h-8 w-8 text-primary" />
             <Link href="/" className="text-lg font-bold text-foreground">
               QUIZ CONSTRUCTOR
             </Link>
           </div>
-
-          {/* По центру: Меню из 4 элементов, сдвинутое немного влево */}
-          {isLogin ? <MenuOptions menuItems={menuItems} /> : null}
-
-          {/* Справа: ThemeSwitch и кнопка с аватаром */}
+          {!isLoading && isLogin ? <MenuOptions menuItems={menuItems} /> : null}
           <div className="flex items-center gap-3">
             <ThemeSwitch />
-
-            {/* Кнопка с аватаром и выпадающим меню для входа/выхода */}
             <Dropdown>
               <Dropdown.Trigger>
                 <div
@@ -52,9 +48,14 @@ export const Navbar: FC = () => {
                       <UserIcon className="h-5 w-5" />
                     </Avatar.Fallback>
                   </Avatar>
+                  {userEmail && (
+                    <span className="text-sm text-default-600 hidden md:inline">
+                      {userEmail}
+                    </span>
+                  )}
                 </div>
               </Dropdown.Trigger>
-              {isLogin ? (
+              {!isLoading && isLogin ? (
                 <LogOut />
               ) : (
                 <LoginMenu onLogin={openLogin} onRegister={openRegister} />
