@@ -3,23 +3,32 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useIsLogin } from "@/app/model/store/app-store";
+import { useSession } from "next-auth/react";
 
 export default function PrivateLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isLogin = useIsLogin();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLogin) {
+    // Редирект только когда сессия точно не найдена
+    if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [isLogin, router]);
+  }, [status, router]);
 
-  if (!isLogin) return null;
+  // Пока сессия загружается — показываем заглушку (или null)
+  if (status === "loading") {
+    return null; // можно заменить на <Spinner /> или скелетон
+  }
+
+  // Если не авторизован — редирект уже в процессе, ничего не рендерим
+  if (status === "unauthenticated") {
+    return null;
+  }
 
   return <>{children}</>;
 }

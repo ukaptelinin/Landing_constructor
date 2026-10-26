@@ -2,14 +2,12 @@
 
 import { FC } from "react";
 import Link from "next/link";
-import { Avatar, Dropdown } from "@heroui/react";
 import { ThemeSwitch } from "@/features/theme-switch"; // Ваш существующий ThemeSwitch
-import { UserIcon, WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
-import { LoginMenu } from "./LoginMenu";
-import { LogOut } from "./LogOut";
+import { WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
 import { MenuOptions } from "./MenuOptions";
 import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
 import { useSession } from "next-auth/react";
+import { UserAvatar } from "./UserAvatar";
 
 export const Navbar: FC = () => {
   const { data: session, status } = useSession();
@@ -36,31 +34,8 @@ export const Navbar: FC = () => {
           </div>
           {!isLoading && isLogin ? <MenuOptions menuItems={menuItems} /> : null}
           <div className="flex items-center gap-3">
+            {!isLoading && isLogin ? <UserAvatar /> : null}
             <ThemeSwitch />
-            <Dropdown>
-              <Dropdown.Trigger>
-                <div
-                  className="flex items-center justify-center rounded-full p-1 hover:bg-default-100 transition-colors cursor-pointer"
-                  aria-label="Профиль пользователя"
-                >
-                  <Avatar className="h-8 w-8">
-                    <Avatar.Fallback>
-                      <UserIcon className="h-5 w-5" />
-                    </Avatar.Fallback>
-                  </Avatar>
-                  {userEmail && (
-                    <span className="text-sm text-default-600 hidden md:inline">
-                      {userEmail}
-                    </span>
-                  )}
-                </div>
-              </Dropdown.Trigger>
-              {!isLoading && isLogin ? (
-                <LogOut />
-              ) : (
-                <LoginMenu onLogin={openLogin} onRegister={openRegister} />
-              )}
-            </Dropdown>
           </div>
         </div>
       </nav>
