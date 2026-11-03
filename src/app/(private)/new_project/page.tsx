@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { Button, Input, Label, TextField } from "@heroui/react";
+import {
+  useQuizActions,
+  useQuizProject,
+} from "@/features/new-project/model/store";
 
 /*const QUIZ_TYPES = [
   { id: "checkboxes", label: "Чекбоксы" },
@@ -12,11 +16,12 @@ import { Button, Input, Label, TextField } from "@heroui/react";
 
 export default function NewProjectPage() {
   const [projectName, setProjectName] = useState("");
+  const { createNewQuiz } = useQuizActions();
+  const quizProject = useQuizProject();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Обработка отправки формы
-    console.log(projectName);
+    createNewQuiz(projectName);
   };
 
   return (
@@ -37,26 +42,6 @@ export default function NewProjectPage() {
               required
             />
           </TextField>
-
-          {/* Тип страницы квиза 
-        <div className="flex flex-col gap-2">
-          <Label>Тип страницы квиза</Label>
-          <ToggleButtonGroup
-            selectionMode="multiple"
-            selectedKeys={selectedType}
-            onSelectionChange={setSelectedType}
-            fullWidth
-            isDetached
-          >
-            {QUIZ_TYPES.map((type) => (
-              <ToggleButton key={type.id} id={type.id}>
-                {type.label}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </div>*/}
-
-          {/* Submit */}
           <Button type="submit" fullWidth>
             Создать проект
           </Button>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ThemeSwitch } from "@/features/theme-switch"; // Ваш существующий ThemeSwitch
 import { WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
 import { MenuOptions } from "./MenuOptions";
-import { useAppActions, useIsLogin } from "@/app/model/store/app-store";
+import { useAppActions } from "@/app/model/store/app-store";
 import { useSession } from "next-auth/react";
 import { UserAvatar } from "./UserAvatar";
 

@@ -1,5 +1,6 @@
-import { Quiz, QuizItem } from "@/shared/types/quiz-types";
+import { PageType, Quiz, QuizItem } from "@/shared/types/quiz-types";
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 
 interface IQuizState {
   quizProject: Quiz;
@@ -8,9 +9,22 @@ interface IQuizState {
 
 interface IQuizActions {
   createNewQuiz: (title: string) => void;
+  createQuizPage: (title: string, pageType: PageType) => void;
   resetQuiz: () => void;
+  resetQuizPage: () => void;
   addQuizPage: (page: QuizItem) => void;
 }
+
+export const createDefaultQuizPage = (
+  title = "",
+  pageType: PageType = "CHECKBOX",
+): QuizItem => ({
+  title,
+  groupName: "",
+  fields: { options: "" },
+  mapLabels: new Map<string, string>(),
+  pageType,
+});
 
 export const createDefaultQuizState = (): IQuizState => ({
   quizProject: {
@@ -18,13 +32,7 @@ export const createDefaultQuizState = (): IQuizState => ({
     title: "",
     quizPages: [],
   },
-  quizPage: {
-    title: "",
-    groupName: "",
-    fields: { options: "" },
-    mapLabels: new Map<string, string>(), // ✅
-    pageType: "CHECKBOX",
-  },
+  quizPage: createDefaultQuizPage(),
 });
 
 export const defaultInitQuizState: IQuizState = createDefaultQuizState();
@@ -36,7 +44,7 @@ const generateId = () =>
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2);
 
-export const useAppStore = create<QuizStore>()((set) => ({
+export const useQuizStore = create<QuizStore>()((set) => ({
   ...createDefaultQuizState(),
 
   createNewQuiz: (title) =>
@@ -49,7 +57,16 @@ export const useAppStore = create<QuizStore>()((set) => ({
       },
     })),
 
+  createQuizPage: (title, pageType) =>
+    set((state) => {
+      const nextPage = createDefaultQuizPage(title, pageType);
+
+      return { quizPage: nextPage };
+    }),
+
   resetQuiz: () => set(() => createDefaultQuizState()),
+  resetQuizPage: () =>
+    set(() => ({ quizPage: createDefaultQuizPage("", "CHECKBOX") })),
 
   addQuizPage: (page) =>
     set((state) => ({
@@ -59,3 +76,17 @@ export const useAppStore = create<QuizStore>()((set) => ({
       },
     })),
 }));
+
+export const useQuizProject = () => useQuizStore((state) => state.quizProject);
+export const useQuizPage = () => useQuizStore((state) => state.quizPage);
+
+export const useQuizActions = () =>
+  useQuizStore(
+    useShallow((state) => ({
+      createNewQuiz: state.createNewQuiz,
+      createQuizPage: state.createQuizPage,
+      resetQuiz: state.resetQuiz,
+      resetQuizPage: state.resetQuizPage,
+      addQuizPage: state.addQuizPage,
+    })),
+  );
