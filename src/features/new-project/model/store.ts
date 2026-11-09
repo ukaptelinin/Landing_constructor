@@ -42,7 +42,7 @@ export type QuizStore = IQuizState & IQuizActions;
 const generateId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
-    : Math.random().toString(36).slice(2);
+    : Math.random().toString(8).slice(2);
 
 export const useQuizStore = create<QuizStore>()((set) => ({
   ...createDefaultQuizState(),
